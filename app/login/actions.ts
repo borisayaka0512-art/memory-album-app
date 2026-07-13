@@ -7,12 +7,22 @@ export type AuthFormState = {
   error?: string;
 } | undefined;
 
+// next はログイン後の遷移先。"/"始まりの相対パス以外は無視する
+// （外部サイトへ飛ばされるオープンリダイレクトを防ぐため）。
+function safeNextPath(value: FormDataEntryValue | null): string {
+  if (typeof value === "string" && value.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+  return "/";
+}
+
 export async function login(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = formData.get("email");
   const password = formData.get("password");
+  const next = safeNextPath(formData.get("next"));
 
   if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
     return { error: "メールアドレスとパスワードを入力してください。" };
@@ -25,7 +35,7 @@ export async function login(
     return { error: "メールアドレスまたはパスワードが正しくありません。" };
   }
 
-  redirect("/");
+  redirect(next);
 }
 
 export async function signup(
@@ -35,6 +45,7 @@ export async function signup(
   const displayName = formData.get("displayName");
   const email = formData.get("email");
   const password = formData.get("password");
+  const next = safeNextPath(formData.get("next"));
 
   if (
     typeof displayName !== "string" ||
@@ -64,7 +75,7 @@ export async function signup(
     return { error: "登録に失敗しました。しばらくしてから再度お試しください。" };
   }
 
-  redirect("/");
+  redirect(next);
 }
 
 export async function logout() {

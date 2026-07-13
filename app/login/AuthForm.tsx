@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { login, signup } from "./actions";
 
-export function AuthForm() {
+export function AuthForm({ next }: { next?: string }) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loginState, loginAction, loginPending] = useActionState(login, undefined);
   const [signupState, signupAction, signupPending] = useActionState(signup, undefined);
@@ -37,6 +37,7 @@ export function AuthForm() {
 
       {mode === "login" ? (
         <form action={loginAction} className="flex flex-col gap-4">
+          {next && <input type="hidden" name="next" value={next} />}
           <Field label="メールアドレス" name="email" type="email" />
           <Field label="パスワード" name="password" type="password" />
           {loginState?.error && <ErrorMessage message={loginState.error} />}
@@ -44,6 +45,7 @@ export function AuthForm() {
         </form>
       ) : (
         <form action={signupAction} className="flex flex-col gap-4">
+          {next && <input type="hidden" name="next" value={next} />}
           <Field label="表示名" name="displayName" type="text" />
           <Field label="メールアドレス" name="email" type="email" />
           <Field label="パスワード（8文字以上）" name="password" type="password" />

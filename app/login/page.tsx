@@ -2,14 +2,20 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AuthForm } from "./AuthForm";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/");
+    redirect(next ?? "/");
   }
 
   return (
@@ -20,7 +26,7 @@ export default async function LoginPage() {
           ログインまたは新規登録してください
         </p>
       </div>
-      <AuthForm />
+      <AuthForm next={next} />
     </div>
   );
 }
