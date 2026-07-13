@@ -43,7 +43,7 @@ export async function createGroup(
     return { error: "グループの作成に失敗しました。" };
   }
 
-  redirect(`/groups/${group.id}/members`);
+  redirect(`/groups/${group.id}`);
 }
 
 export async function removeMember(groupId: string, userId: string) {
@@ -89,5 +89,5 @@ export async function joinGroupByInviteCode(
     };
   }
 
-  redirect(`/groups/${groupId}/members`);
+  redirect(`/groups/${groupId}`);
 }

@@ -47,7 +47,7 @@ export default async function GroupsPage() {
           {groups.map((group) => (
             <li key={group.id}>
               <Link
-                href={`/groups/${group.id}/members`}
+                href={`/groups/${group.id}`}
                 className="block rounded-md border border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800"
               >
                 {group.name}
