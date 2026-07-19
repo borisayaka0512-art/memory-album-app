@@ -94,12 +94,17 @@ export default async function BookshelfPage({
                         height: spineHeightFor(album.id),
                       }}
                     >
-                      <span
-                        className="line-clamp-1 text-xs text-white"
-                        style={{ writingMode: "vertical-rl" }}
-                      >
-                        {album.title}
-                      </span>
+                      <div>
+                        <span
+                          className="line-clamp-1 text-xs text-white"
+                          style={{
+                            writingMode: "vertical-rl",
+                            textOrientation: "upright",
+                          }}
+                        >
+                          {album.title}
+                        </span>
+                      </div>
                     </Link>
                   ))}
                 </div>
