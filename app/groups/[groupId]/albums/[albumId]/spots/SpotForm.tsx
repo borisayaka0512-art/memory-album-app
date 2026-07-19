@@ -2,6 +2,9 @@
 
 import { useActionState } from "react";
 import type { FormState } from "./actions";
+import { Field, TextAreaField } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
+import { ErrorText } from "@/components/ui/ErrorText";
 
 export function SpotForm({
   action,
@@ -16,50 +19,35 @@ export function SpotForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="text-zinc-700 dark:text-zinc-300">場所名</span>
-        <input
-          name="name"
-          type="text"
-          required
-          defaultValue={defaultValues?.name}
-          placeholder="例: 太宰府天満宮"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-base outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-500"
-        />
-      </label>
+      <Field
+        label="場所名"
+        name="name"
+        type="text"
+        required
+        defaultValue={defaultValues?.name}
+        placeholder="例: 太宰府天満宮"
+      />
 
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="text-zinc-700 dark:text-zinc-300">訪問日（任意）</span>
-        <input
-          name="visitedDate"
-          type="date"
-          defaultValue={defaultValues?.visitedDate ?? undefined}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-base outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-500"
-        />
-      </label>
+      <Field
+        label="訪問日（任意）"
+        name="visitedDate"
+        type="date"
+        defaultValue={defaultValues?.visitedDate ?? undefined}
+      />
 
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="text-zinc-700 dark:text-zinc-300">メモ（任意）</span>
-        <textarea
-          name="memo"
-          rows={4}
-          defaultValue={defaultValues?.memo ?? undefined}
-          placeholder="そのときの出来事や気持ちなど"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-base outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-500"
-        />
-      </label>
+      <TextAreaField
+        label="メモ（任意）"
+        name="memo"
+        rows={4}
+        defaultValue={defaultValues?.memo ?? undefined}
+        placeholder="そのときの出来事や気持ちなど"
+      />
 
-      {state?.error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <ErrorText>{state.error}</ErrorText>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-zinc-900 py-2.5 text-sm font-medium text-white transition disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "保存中..." : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 }

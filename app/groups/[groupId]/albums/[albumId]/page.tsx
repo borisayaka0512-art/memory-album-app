@@ -5,6 +5,69 @@ import { uploadPhotos, deletePhoto } from "./photos/actions";
 import { PhotoUploadForm } from "./photos/PhotoUploadForm";
 import { upsertAfterword } from "./afterwords/actions";
 import { AfterwordForm } from "./afterwords/AfterwordForm";
+import { BackLink } from "@/components/ui/BackLink";
+import { Card } from "@/components/ui/Card";
+
+type Photo = {
+  id: string;
+  storage_path: string;
+  caption: string | null;
+  spot_id: string | null;
+  uploaded_by: string;
+  signedUrl: string | null;
+};
+
+function PhotoStrip({
+  photos,
+  groupId,
+  albumId,
+  userId,
+}: {
+  photos: Photo[];
+  groupId: string;
+  albumId: string;
+  userId: string;
+}) {
+  if (photos.length === 0) return null;
+  return (
+    <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+      {photos.map((photo) => (
+        <li
+          key={photo.id}
+          className="flex w-[calc(50%-0.375rem)] flex-none snap-start flex-col gap-1.5 overflow-hidden rounded-md border border-hairline bg-card shadow-card"
+        >
+          {photo.signedUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photo.signedUrl}
+              alt={photo.caption ?? ""}
+              className="aspect-square w-full object-cover"
+            />
+          )}
+          {photo.caption && (
+            <p className="px-2 text-xs text-ink-muted">{photo.caption}</p>
+          )}
+          {photo.uploaded_by === userId && (
+            <form
+              action={deletePhoto.bind(
+                null,
+                groupId,
+                albumId,
+                photo.id,
+                photo.storage_path,
+              )}
+              className="px-2 pb-2"
+            >
+              <button type="submit" className="text-xs text-accent underline">
+                削除
+              </button>
+            </form>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default async function AlbumPage({
   params,
@@ -20,6 +83,8 @@ export default async function AlbumPage({
   if (!user) {
     redirect("/login");
   }
+
+  const userId = user.id;
 
   const { data: album } = await supabase
     .from("albums")
@@ -64,10 +129,22 @@ export default async function AlbumPage({
         )
     : { data: [] };
 
-  const photos = (photoRows ?? []).map((photo, index) => ({
+  const photos: Photo[] = (photoRows ?? []).map((photo, index) => ({
     ...photo,
     signedUrl: signedUrls.data?.[index]?.signedUrl ?? null,
   }));
+
+  const photosBySpot = new Map<string, Photo[]>();
+  const albumWidePhotos: Photo[] = [];
+  for (const photo of photos) {
+    if (photo.spot_id) {
+      const list = photosBySpot.get(photo.spot_id) ?? [];
+      list.push(photo);
+      photosBySpot.set(photo.spot_id, list);
+    } else {
+      albumWidePhotos.push(photo);
+    }
+  }
 
   const uploadPhotosAction = uploadPhotos.bind(null, groupId, albumId);
 
@@ -92,169 +169,115 @@ export default async function AlbumPage({
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
       <div>
-        <Link
-          href={`/groups/${groupId}`}
-          className="text-sm text-zinc-500 dark:text-zinc-400"
-        >
-          ← 本棚に戻る
-        </Link>
-        <h1 className="mt-2 text-xl font-semibold">{album.title}</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <BackLink href={`/groups/${groupId}`}>← 本棚に戻る</BackLink>
+        <h1 className="mt-2 text-xl">{album.title}</h1>
+        <p className="mt-1 text-sm text-ink-muted">
           {album.travel_date_end && album.travel_date_end !== album.travel_date_start
             ? `${album.travel_date_start} 〜 ${album.travel_date_end}`
             : album.travel_date_start}
         </p>
       </div>
 
-      <div>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          参加メンバー
-        </h2>
-        <ul className="flex flex-col gap-2">
-          {members.map((member) => (
-            <li
-              key={member.userId}
-              className="rounded-md border border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800"
-            >
-              {member.displayName}
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-ink-muted">参加メンバー:</span>
+        {members.map((member) => (
+          <span
+            key={member.userId}
+            className="rounded-full bg-accent-wash px-2.5 py-0.5 text-ink-muted"
+          >
+            {member.displayName}
+          </span>
+        ))}
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            しおり
-          </h2>
+          <h2 className="text-sm font-medium text-ink-muted">しおり</h2>
           <Link
             href={`/groups/${groupId}/albums/${albumId}/spots/new`}
-            className="text-sm text-zinc-500 underline dark:text-zinc-400"
+            className="text-sm text-accent underline"
           >
             + しおりを追加
           </Link>
         </div>
         {spots && spots.length > 0 ? (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-3">
             {spots.map((spot) => (
-              <li
-                key={spot.id}
-                className="rounded-md border border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{spot.name}</p>
-                  <Link
-                    href={`/groups/${groupId}/albums/${albumId}/spots/${spot.id}/edit`}
-                    className="text-xs text-zinc-500 underline dark:text-zinc-400"
-                  >
-                    編集
-                  </Link>
-                </div>
-                {spot.visited_date && (
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {spot.visited_date}
-                  </p>
-                )}
-                {spot.memo && (
-                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                    {spot.memo}
-                  </p>
-                )}
+              <li key={spot.id}>
+                <Card className="text-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{spot.name}</p>
+                    <Link
+                      href={`/groups/${groupId}/albums/${albumId}/spots/${spot.id}/edit`}
+                      className="text-xs text-ink-muted underline hover:text-accent"
+                    >
+                      編集
+                    </Link>
+                  </div>
+                  {spot.visited_date && (
+                    <p className="mt-1 text-xs text-ink-muted">
+                      {spot.visited_date}
+                    </p>
+                  )}
+                  {spot.memo && (
+                    <p className="mt-1 text-sm text-ink-muted">{spot.memo}</p>
+                  )}
+                  <div className="mt-3">
+                    <PhotoStrip
+                      photos={photosBySpot.get(spot.id) ?? []}
+                      groupId={groupId}
+                      albumId={albumId}
+                      userId={userId}
+                    />
+                  </div>
+                </Card>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            まだしおりがありません。
-          </p>
+          <p className="text-sm text-ink-muted">まだしおりがありません。</p>
         )}
       </div>
 
-      <div>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          写真
-        </h2>
-        {photos.length > 0 ? (
-          <ul className="grid grid-cols-2 gap-3">
-            {photos.map((photo) => (
-              <li
-                key={photo.id}
-                className="flex flex-col gap-1.5 overflow-hidden rounded-md border border-zinc-200 dark:border-zinc-800"
-              >
-                {photo.signedUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo.signedUrl}
-                    alt={photo.caption ?? ""}
-                    className="aspect-square w-full object-cover"
-                  />
-                )}
-                {photo.caption && (
-                  <p className="px-2 text-xs text-zinc-600 dark:text-zinc-400">
-                    {photo.caption}
-                  </p>
-                )}
-                {photo.uploaded_by === user.id && (
-                  <form
-                    action={deletePhoto.bind(
-                      null,
-                      groupId,
-                      albumId,
-                      photo.id,
-                      photo.storage_path,
-                    )}
-                    className="px-2 pb-2"
-                  >
-                    <button
-                      type="submit"
-                      className="text-xs text-red-600 underline dark:text-red-400"
-                    >
-                      削除
-                    </button>
-                  </form>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            まだ写真がありません。
-          </p>
-        )}
-
-        <div className="mt-4">
-          <PhotoUploadForm
-            action={uploadPhotosAction}
-            spots={(spots ?? []).map((spot) => ({
-              id: spot.id,
-              name: spot.name,
-            }))}
+      {albumWidePhotos.length > 0 && (
+        <div>
+          <h2 className="mb-2 text-sm font-medium text-ink-muted">
+            アルバム全体の写真
+          </h2>
+          <PhotoStrip
+            photos={albumWidePhotos}
+            groupId={groupId}
+            albumId={albumId}
+            userId={userId}
           />
         </div>
-      </div>
+      )}
+
+      <PhotoUploadForm
+        action={uploadPhotosAction}
+        spots={(spots ?? []).map((spot) => ({
+          id: spot.id,
+          name: spot.name,
+        }))}
+      />
 
       <div>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          あとがき
-        </h2>
+        <h2 className="mb-2 text-sm font-medium text-ink-muted">あとがき</h2>
         {afterwords.length > 0 ? (
           <ul className="mb-4 flex flex-col gap-2">
             {afterwords.map((afterword) => (
-              <li
-                key={afterword.id}
-                className="rounded-md border border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800"
-              >
-                <p className="mb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  {afterword.displayName}
-                </p>
-                <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
-                  {afterword.content}
-                </p>
+              <li key={afterword.id}>
+                <Card className="text-sm">
+                  <p className="mb-1 text-xs font-medium text-ink-muted">
+                    {afterword.displayName}
+                  </p>
+                  <p className="whitespace-pre-wrap">{afterword.content}</p>
+                </Card>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-ink-muted">
             まだあとがきがありません。
           </p>
         )}

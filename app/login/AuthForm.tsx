@@ -2,6 +2,9 @@
 
 import { useActionState, useState } from "react";
 import { login, signup } from "./actions";
+import { Field } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
+import { ErrorText } from "@/components/ui/ErrorText";
 
 export function AuthForm({ next }: { next?: string }) {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -10,14 +13,14 @@ export function AuthForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="mb-6 flex rounded-lg border border-zinc-200 p-1 dark:border-zinc-800">
+      <div className="mb-6 flex rounded-lg border border-hairline bg-card p-1">
         <button
           type="button"
           onClick={() => setMode("login")}
           className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
             mode === "login"
-              ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-              : "text-zinc-600 dark:text-zinc-400"
+              ? "bg-accent text-accent-ink"
+              : "text-ink-muted"
           }`}
         >
           ログイン
@@ -27,8 +30,8 @@ export function AuthForm({ next }: { next?: string }) {
           onClick={() => setMode("signup")}
           className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
             mode === "signup"
-              ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-              : "text-zinc-600 dark:text-zinc-400"
+              ? "bg-accent text-accent-ink"
+              : "text-ink-muted"
           }`}
         >
           新規登録
@@ -38,59 +41,61 @@ export function AuthForm({ next }: { next?: string }) {
       {mode === "login" ? (
         <form action={loginAction} className="flex flex-col gap-4">
           {next && <input type="hidden" name="next" value={next} />}
-          <Field label="メールアドレス" name="email" type="email" />
-          <Field label="パスワード" name="password" type="password" />
-          {loginState?.error && <ErrorMessage message={loginState.error} />}
-          <SubmitButton pending={loginPending} label="ログイン" />
+          <Field
+            label="メールアドレス"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          <Field
+            label="パスワード"
+            name="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          {loginState?.error && <ErrorText>{loginState.error}</ErrorText>}
+          <Button type="submit" disabled={loginPending}>
+            {loginPending ? "処理中..." : "ログイン"}
+          </Button>
         </form>
       ) : (
         <form action={signupAction} className="flex flex-col gap-4">
           {next && <input type="hidden" name="next" value={next} />}
-          <Field label="表示名" name="displayName" type="text" />
-          <Field label="メールアドレス" name="email" type="email" />
-          <Field label="パスワード（8文字以上）" name="password" type="password" />
-          {signupState?.error && <ErrorMessage message={signupState.error} />}
-          <SubmitButton pending={signupPending} label="登録する" />
+          <Field label="表示名" name="displayName" type="text" required />
+          <Field
+            label="メールアドレス"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          <Field
+            label="パスワード（8文字以上）"
+            name="password"
+            type="password"
+            required
+            autoComplete="new-password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          {signupState?.error && <ErrorText>{signupState.error}</ErrorText>}
+          <Button type="submit" disabled={signupPending}>
+            {signupPending ? "処理中..." : "登録する"}
+          </Button>
         </form>
       )}
     </div>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type,
-}: {
-  label: string;
-  name: string;
-  type: string;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-zinc-700 dark:text-zinc-300">{label}</span>
-      <input
-        name={name}
-        type={type}
-        required
-        className="rounded-md border border-zinc-300 px-3 py-2 text-base outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-500"
-      />
-    </label>
-  );
-}
-
-function ErrorMessage({ message }: { message: string }) {
-  return <p className="text-sm text-red-600 dark:text-red-400">{message}</p>;
-}
-
-function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-md bg-zinc-900 py-2.5 text-sm font-medium text-white transition disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-    >
-      {pending ? "処理中..." : label}
-    </button>
   );
 }

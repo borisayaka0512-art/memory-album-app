@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SPINE_COLORS } from "@/lib/bookColors";
 
 export type FormState = { error?: string } | undefined;
 
@@ -16,6 +17,7 @@ export async function createAlbum(
   const memberIds = formData.getAll("memberIds").filter(
     (id): id is string => typeof id === "string" && id.length > 0,
   );
+  const coverColor = formData.get("coverColor");
 
   if (typeof title !== "string" || !title.trim()) {
     return { error: "タイトルを入力してください。" };
@@ -42,6 +44,11 @@ export async function createAlbum(
       travel_date_start: travelDateStart,
       travel_date_end:
         typeof travelDateEnd === "string" && travelDateEnd ? travelDateEnd : null,
+      cover_color:
+        typeof coverColor === "string" &&
+        SPINE_COLORS.some((c) => c.value === coverColor)
+          ? coverColor
+          : null,
       created_by: user.id,
     })
     .select("id")

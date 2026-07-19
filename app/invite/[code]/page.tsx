@@ -27,10 +27,8 @@ export default async function InvitePage({
   if (!group) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          この招待リンクは無効です。
-        </p>
-        <Link href="/groups" className="text-sm underline">
+        <p className="text-ink-muted">この招待リンクは無効です。</p>
+        <Link href="/groups" className="text-sm text-accent underline">
           グループ一覧に戻る
         </Link>
       </div>
@@ -39,9 +37,7 @@ export default async function InvitePage({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
-      <p className="text-zinc-600 dark:text-zinc-400">
-        「{group.name}」に参加しますか？
-      </p>
+      <p className="text-ink-muted">「{group.name}」に参加しますか？</p>
       <JoinButton code={code} />
     </div>
   );

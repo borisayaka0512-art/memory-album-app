@@ -32,7 +32,7 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: "メールアドレスまたはパスワードが正しくありません。" };
+    return { error: `ログインに失敗しました（${error.message}）` };
   }
 
   redirect(next);
@@ -63,7 +63,7 @@ export async function signup(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -72,7 +72,14 @@ export async function signup(
   });
 
   if (error) {
-    return { error: "登録に失敗しました。しばらくしてから再度お試しください。" };
+    return { error: `登録に失敗しました（${error.message}）` };
+  }
+
+  if (!data.session) {
+    return {
+      error:
+        "確認メールを送信しました。メール内のリンクを開いてから、ログインしてください。",
+    };
   }
 
   redirect(next);

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/login/actions";
 import { JoinByCodeForm } from "./JoinByCodeForm";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { Card } from "@/components/ui/Card";
 
 export default async function GroupsPage() {
   const supabase = await createClient();
@@ -22,23 +24,18 @@ export default async function GroupsPage() {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">グループ一覧</h1>
+        <h1 className="text-xl">グループ一覧</h1>
         <form action={logout}>
           <button
             type="submit"
-            className="text-sm text-zinc-500 underline dark:text-zinc-400"
+            className="text-sm text-ink-muted underline hover:text-accent"
           >
             ログアウト
           </button>
         </form>
       </div>
 
-      <Link
-        href="/groups/new"
-        className="rounded-md bg-zinc-900 px-4 py-2.5 text-center text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        + 新しいグループを作る
-      </Link>
+      <LinkButton href="/groups/new">+ 新しいグループを作る</LinkButton>
 
       <JoinByCodeForm />
 
@@ -46,19 +43,14 @@ export default async function GroupsPage() {
         <ul className="flex flex-col gap-2">
           {groups.map((group) => (
             <li key={group.id}>
-              <Link
-                href={`/groups/${group.id}`}
-                className="block rounded-md border border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800"
-              >
-                {group.name}
+              <Link href={`/groups/${group.id}`} className="block">
+                <Card className="text-sm hover:border-accent">{group.name}</Card>
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          まだグループがありません。
-        </p>
+        <p className="text-sm text-ink-muted">まだグループがありません。</p>
       )}
     </div>
   );

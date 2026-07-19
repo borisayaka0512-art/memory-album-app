@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #e9e4d8;
+  --card: #f7f4ec;
+  --raised: #ffffff;
+  --ink: #2b2621;
+  --ink-muted: #6b6255;
+  --accent: #8b3a46;
+  --accent-ink: #f7f4ec;
+  --accent-soft: #dcb9bc;
+  --accent-wash: rgba(139, 58, 70, 0.08);
+  --sage: #5c6e58;
+  --sage-wash: rgba(92, 110, 88, 0.12);
+  --hairline: rgba(43, 38, 33, 0.16);
+  --shelf-wood: #4a3324;
+  --shelf-wood-dark: #35240f;
+  --card-shadow: 0 1px 2px rgba(43, 38, 33, 0.08), 0 6px 20px rgba(43, 38, 33, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-wash: var(--accent-wash);
+  --color-sage: var(--sage);
+  --color-sage-wash: var(--sage-wash);
+  --color-hairline: var(--hairline);
+  --color-shelf-wood: var(--shelf-wood);
+  --color-shelf-wood-dark: var(--shelf-wood-dark);
+  --shadow-card: var(--card-shadow);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #181f1c;
+    --card: #212925;
+    --raised: #26302b;
+    --ink: #e7e2d6;
+    --ink-muted: #a39c8c;
+    --accent: #e0949c;
+    --accent-ink: #2b1418;
+    --accent-soft: #4a2f34;
+    --accent-wash: rgba(224, 148, 156, 0.12);
+    --sage: #9db597;
+    --sage-wash: rgba(157, 181, 151, 0.14);
+    --hairline: rgba(231, 226, 214, 0.16);
+    --shelf-wood: #2b1d13;
+    --shelf-wood-dark: #1c130c;
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 }
 
+* {
+  border-color: var(--hairline);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-weight: 600;
 }

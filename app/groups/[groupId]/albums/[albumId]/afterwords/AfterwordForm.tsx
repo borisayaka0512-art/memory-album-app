@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { FormState } from "./actions";
+import { Button } from "@/components/ui/Button";
+import { ErrorText } from "@/components/ui/ErrorText";
 
 export function AfterwordForm({
   action,
@@ -10,7 +12,20 @@ export function AfterwordForm({
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   defaultContent: string;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [state, formAction, pending] = useActionState(action, undefined);
+
+  if (!isOpen) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="text-sm text-accent underline"
+      >
+        {defaultContent ? "あとがきを書き直す" : "+ あとがきを書く"}
+      </button>
+    );
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
@@ -20,20 +35,23 @@ export function AfterwordForm({
         required
         defaultValue={defaultContent}
         placeholder="旅を振り返って、一言残そう"
-        className="rounded-md border border-zinc-300 px-3 py-2 text-base outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-500"
+        className="rounded-md border border-hairline bg-raised px-3 py-2 text-base text-ink outline-none focus:border-accent"
       />
 
-      {state?.error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <ErrorText>{state.error}</ErrorText>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-zinc-900 py-2.5 text-sm font-medium text-white transition disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        {pending ? "保存中..." : defaultContent ? "書き直す" : "投稿する"}
-      </button>
+      <div className="flex items-center gap-3">
+        <Button type="submit" disabled={pending} className="flex-1">
+          {pending ? "保存中..." : defaultContent ? "書き直す" : "投稿する"}
+        </Button>
+        <button
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="text-sm text-ink-muted underline"
+        >
+          キャンセル
+        </button>
+      </div>
     </form>
   );
 }

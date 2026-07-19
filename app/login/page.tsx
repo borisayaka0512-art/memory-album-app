@@ -21,8 +21,8 @@ export default async function LoginPage({
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">思い出アルバム</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-2xl tracking-tight">思い出アルバム</h1>
+        <p className="mt-2 text-sm text-ink-muted">
           ログインまたは新規登録してください
         </p>
       </div>
