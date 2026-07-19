@@ -94,9 +94,9 @@ export default async function BookshelfPage({
                         height: spineHeightFor(album.id),
                       }}
                     >
-                      <div>
+                      <div className="h-full overflow-hidden">
                         <span
-                          className="line-clamp-1 text-xs text-white"
+                          className="text-xs text-white"
                           style={{
                             writingMode: "vertical-rl",
                             textOrientation: "upright",
