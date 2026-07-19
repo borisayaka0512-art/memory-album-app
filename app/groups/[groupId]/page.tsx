@@ -94,16 +94,20 @@ export default async function BookshelfPage({
                         height: spineHeightFor(album.id),
                       }}
                     >
-                      <div className="h-full overflow-hidden">
-                        <span
-                          className="text-xs text-white"
-                          style={{
-                            writingMode: "vertical-rl",
-                            textOrientation: "upright",
-                          }}
-                        >
-                          {album.title}
-                        </span>
+                      <div className="flex max-h-full flex-col items-center gap-0.5 overflow-hidden">
+                        {[...album.title].slice(0, 9).map((char, i) => (
+                          <span
+                            key={i}
+                            className="text-xs leading-none text-white"
+                          >
+                            {char}
+                          </span>
+                        ))}
+                        {[...album.title].length > 9 && (
+                          <span className="text-xs leading-none text-white">
+                            …
+                          </span>
+                        )}
                       </div>
                     </Link>
                   ))}
